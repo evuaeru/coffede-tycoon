@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffede Tycoon ☕ | 16-Bit Pixel Art Coffee Simulation</title>
+    <!-- Google Fonts Preconnect & High-Performance Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=44">
+</head>
+<body>
+    <div class="app-container">
+        <!-- TOP BRANDING & HUD -->
+        <header class="game-header">
+            <div class="top-branding">
+                <div class="logo-wrapper">
+                    <span class="pixel-logo"><span class="logo-cup">☕</span> COFFEDE TYCOON</span>
+                    <span class="tycoon-badge">LEMONADE EDITION</span>
+                </div>
+                <div class="header-actions">
+                    <button id="btnMusicToggle" class="btn-audio btn-music" title="Toggle Cozy Lounge BGM">🎵 Music: ON</button>
+                    <button id="btnAudioToggle" class="btn-audio" title="Toggle Sound Effects">🔊 Audio: ON</button>
+                    <button id="btnEmergencyAid" class="btn-audio btn-relief" title="Emergency Financial Aid">🆘 Relief</button>
+                    <button id="btnResetGame" class="btn-audio btn-reset" title="Start New Game">🔄 Reset</button>
+                </div>
+            </div>
+
+            <!-- HUD BAR (Cleaned: Cash, Day, Location, Weather, Reputation) -->
+            <div class="hud-bar">
+                <div class="hud-item hud-cash-item">
+                    <span class="hud-label">💵 Cash</span>
+                    <span id="hudCash" class="hud-value cash">$40.00</span>
+                </div>
+                <!-- Preserved for system state but hidden from primary HUD -->
+                <div class="hud-item hud-vault-item" style="display: none;">
+                    <span class="hud-label">🪙 Vault</span>
+                    <span id="hudUSDC" class="hud-value crypto">0.00 USDC</span>
+                </div>
+                <div class="hud-item hud-bean-item" style="display: none;">
+                    <span class="hud-label">🪙 Token</span>
+                    <span id="hudBean" class="hud-value bean">50 $BEAN</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">📅 Day</span>
+                    <span id="hudDayNum" class="hud-value day">Day 1</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">📍 Area</span>
+                    <span id="hudLocation" class="hud-value location">Cul-de-Sac</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">🌤️ Forecast</span>
+                    <span class="hud-value weather"><span id="hudWeatherIcon">☀️</span> <span id="hudWeatherText">28°C - Sunny</span></span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">⭐ Rep</span>
+                    <span id="hudReputation" class="hud-value rep">50%</span>
+                </div>
+            </div>
+
+            <!-- PERSISTENT GLOBAL REAL-TIME SUPPLIES & CUPS MONITOR RIBBON (Visible across ALL tabs!) -->
+            <div id="standSuppliesMonitor" class="stand-supplies-monitor-bar global-supplies-ribbon" title="Real-Time Supplies & Coffee Batch Monitor">
+                <div class="monitor-slot" title="Coffee Beans in Stock (Scoops)">
+                    <span class="mon-icon">☕</span>
+                    <div class="mon-metric">
+                        <span id="hudMonBeans" class="mon-val">0</span>
+                        <span class="mon-tag">BEANS</span>
+                    </div>
+                </div>
+                <div class="monitor-slot" title="Fresh Milk in Stock (Servings)">
+                    <span class="mon-icon">🥛</span>
+                    <div class="mon-metric">
+                        <span id="hudMonMilk" class="mon-val">0</span>
+                        <span class="mon-tag">MILK</span>
+                    </div>
+                </div>
+                <div class="monitor-slot" title="Sugar Packets in Stock">
+                    <span class="mon-icon">🍬</span>
+                    <div class="mon-metric">
+                        <span id="hudMonSugar" class="mon-val">0</span>
+                        <span class="mon-tag">SUGAR</span>
+                    </div>
+                </div>
+                <div class="monitor-slot" title="Ice Cubes in Stock">
+                    <span class="mon-icon">🧊</span>
+                    <div class="mon-metric">
+                        <span id="hudMonIce" class="mon-val">0</span>
+                        <span class="mon-tag">ICE</span>
+                    </div>
+                </div>
+                <div class="monitor-slot" title="Flavor Syrup in Stock (Pumps)">
+                    <span class="mon-icon">🍯</span>
+                    <div class="mon-metric">
+                        <span id="hudMonSyrup" class="mon-val">0</span>
+                        <span class="mon-tag">SYRUP</span>
+                    </div>
+                </div>
+                <div class="monitor-separator"></div>
+                <div class="monitor-slot monitor-slot-cups" title="Clean Paper Cups in Stock">
+                    <span class="mon-icon">🥤</span>
+                    <div class="mon-metric">
+                        <span id="hudMonCups" class="mon-val">0</span>
+                        <span class="mon-tag">CUPS</span>
+                    </div>
+                </div>
+                <div class="monitor-slot monitor-slot-carafe" title="Ready Brewed Coffee in Carafe (Ready to Pour)">
+                    <span class="mon-icon">♨️</span>
+                    <div class="mon-metric">
+                        <span id="hudMonCarafe" class="mon-val">0</span>
+                        <span class="mon-tag">CARAFE</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <nav class="nav-tab-bar">
+            <button class="nav-tab active" data-tab="stand">🏠 Stand</button>
+            <button class="nav-tab" data-tab="supplies">📦 Supplies</button>
+            <button class="nav-tab" data-tab="recipe">☕ Recipe</button>
+            <button class="nav-tab" data-tab="marketing">📢 Marketing</button>
+            <button class="nav-tab" data-tab="locations">📍 Locations</button>
+            <button class="nav-tab" data-tab="upgrades">🛠️ Upgrades</button>
+            <button class="nav-tab" data-tab="staff">👩‍🍳 Staff</button>
+            <button class="nav-tab" data-tab="leaderboard">🏆 Leaderboard</button>
+            <button class="nav-tab" data-tab="ledger">📊 Ledger</button>
+            <button class="nav-tab map-editor-tab" data-tab="editor">🛠️ Map Editor</button>
+        </nav>
+
+        <!-- MAIN VIEWPORT -->
+        <main class="main-viewport">
+            
+            <!-- TAB 1: STAND / LIVE SIMULATION VIEW (EXPANDED FULL-WIDTH CANVAS + ARTISAN CONTROL DECK) -->
+            <section id="tab_stand" class="game-tab-content active">
+                <div class="stand-tycoon-container">
+                    <!-- TOP: FULL-WIDTH SIMULATION CANVAS VIEWPORT -->
+                    <div class="stand-canvas-column">
+                        <div class="canvas-wrapper">
+                            <canvas id="gameCanvas" width="1280" height="720"></canvas>
+                        </div>
+                        <!-- BELOW CANVAS: STAND DAYTIME CONTROLS & CLOCK BAR (Does NOT cover gameplay screen) -->
+                        <div class="canvas-bottom-hud stand-controls-panel stand-controls-below-canvas">
+                            <button type="button" id="btnStartDay" class="pixel-btn btn-primary btn-open-stand">▶ OPEN STAND (START DAY)</button>
+                            <div id="simLiveControls" class="sim-live-controls" style="display: none;">
+                                <button type="button" id="btnPauseSim" class="pixel-btn">⏸ Pause</button>
+                                <div class="speed-selector">
+                                    <button type="button" class="speed-btn active" data-speed="1">1x</button>
+                                    <button type="button" class="speed-btn" data-speed="2">2x</button>
+                                    <button type="button" class="speed-btn" data-speed="5">5x</button>
+                                </div>
+                                <button type="button" id="btnSkipDay" class="pixel-btn btn-skip-day" style="display: none;">⏩ Fast Finish</button>
+                            </div>
+                            <div class="stand-day-timer canvas-hud-timer">
+                                <div class="day-time-row">
+                                    <span id="hudClock" class="clock-display">08:00 AM</span>
+                                    <span id="hudLiveSales" class="live-sales-chip">0 cups ($0.00)</span>
+                                </div>
+                                <div class="day-progress-container">
+                                    <div id="dayProgressBar" class="day-progress-bar"></div>
+                                </div>
+                            </div>
+                            <button type="button" id="btnCanvasSkip" class="canvas-skip-btn">▶▶ SKIP</button>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM: SPACIOUS 2-COLUMN CONTROL DECK (Matches Map Editor Layout) -->
+                    <div class="stand-deck-grid">
+                        <!-- LEFT COLUMN: PERFORMANCE & LOCATION INFO -->
+                        <div class="stand-deck-column stand-left-panel">
+                            <!-- PERFORMANCE PANEL -->
+                            <div class="tycoon-card stand-perf-box">
+                                <div class="tycoon-card-title">📈 TODAY'S PERFORMANCE</div>
+                                <div class="tycoon-card-body">
+                                    <div class="perf-metric-row">
+                                        <span class="perf-label">Cups Sold:</span>
+                                        <span id="perfCupsSold" class="perf-num">0</span>
+                                    </div>
+                                    <div class="perf-metric-row">
+                                        <span class="perf-label">Profit:</span>
+                                        <span id="perfProfit" class="perf-num">$ 0.00</span>
+                                    </div>
+                                    <!-- 4 Reaction Counters in retro mini speech bubbles -->
+                                    <div class="perf-reactions-grid">
+                                        <div class="reaction-bubble-card reaction-angry" title="Angry / Bad Quality">
+                                            <span class="reaction-ico">😠</span>
+                                            <span id="perfReactionAngry" class="reaction-val">0</span>
+                                        </div>
+                                        <div class="reaction-bubble-card reaction-happy" title="Happy / Delicious">
+                                            <span class="reaction-ico">😋</span>
+                                            <span id="perfReactionHappy" class="reaction-val">0</span>
+                                        </div>
+                                        <div class="reaction-bubble-card reaction-impatient" title="Impatient / Waited Too Long">
+                                            <span class="reaction-ico">⏳</span>
+                                            <span id="perfReactionImpatient" class="reaction-val">0</span>
+                                        </div>
+                                        <div class="reaction-bubble-card reaction-overpriced" title="Overpriced / Too Expensive">
+                                            <span class="reaction-ico">💸</span>
+                                            <span id="perfReactionOverpriced" class="reaction-val">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- LOCATION INFO & METERS -->
+                            <div class="tycoon-card stand-location-card">
+                                <div class="location-summary-header">
+                                    <h2 id="standLocationName" class="tycoon-location-title">Quiet Cul-de-Sac</h2>
+                                </div>
+                                <p id="standLocationDesc" class="tycoon-location-desc">Sleepy suburban dead-end circle. Zero rent! Perfect for testing recipes on friendly neighbors.</p>
+                                <div class="tycoon-meters-container">
+                                    <div class="tycoon-meter-box">
+                                        <div class="meter-header">
+                                            <span class="meter-title">popularity</span>
+                                            <span id="valPopularity" class="meter-percent">20%</span>
+                                        </div>
+                                        <div class="meter-groove">
+                                            <div id="meterPopularity" class="meter-filament" style="width: 20%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="tycoon-meter-box">
+                                        <div class="meter-header">
+                                            <span class="meter-title">satisfaction</span>
+                                            <span id="valSatisfaction" class="meter-percent">55%</span>
+                                        </div>
+                                        <div class="meter-groove">
+                                            <div id="meterSatisfaction" class="meter-filament" style="width: 55%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN: REDESIGNED TODAY'S SETTING PANEL -->
+                        <div class="stand-deck-column stand-right-panel">
+                            <div class="tycoon-card stand-setting-box">
+                                <div class="tycoon-card-title">⚙️ TODAY'S SETTING</div>
+                                <div class="tycoon-card-body setting-redesigned-body">
+                                    <!-- Top 2x3 KPI Summary Tiles -->
+                                    <div class="setting-kpi-grid">
+                                        <div class="setting-kpi-tile">
+                                            <span class="setting-kpi-lbl">📍 Location & Rent</span>
+                                            <span id="standSettingRent" class="setting-val setting-kpi-val">Quiet Cul-de-Sac (FREE)</span>
+                                        </div>
+                                        <div class="setting-kpi-tile">
+                                            <span class="setting-kpi-lbl">☕ Cup Price</span>
+                                            <span id="standSettingPrice" class="setting-val setting-kpi-val price-accent">$2.50</span>
+                                        </div>
+                                        <div class="setting-kpi-tile">
+                                            <span class="setting-kpi-lbl">📢 Daily Ad Spend</span>
+                                            <span id="standSettingAds" class="setting-val setting-kpi-val">$0.00 / day</span>
+                                        </div>
+                                        <div class="setting-kpi-tile">
+                                            <span class="setting-kpi-lbl">👩‍🍳 Active Staff</span>
+                                            <span id="standSettingStaff" class="setting-val setting-kpi-val">Solo Barista ($0/d)</span>
+                                        </div>
+                                        <div class="setting-kpi-tile">
+                                            <span class="setting-kpi-lbl">💳 Payment Accepted</span>
+                                            <span id="standSettingPayment" class="setting-val setting-kpi-val">💵 Cash Box Only</span>
+                                        </div>
+                                        <div class="setting-kpi-tile">
+                                            <span class="setting-kpi-lbl">⚡ Service Speed</span>
+                                            <span id="standSettingSpeed" class="setting-val setting-kpi-val">1.00x (Base)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Active Brew Recipe Formula Strip -->
+                                    <div class="setting-section-block">
+                                        <div class="setting-section-header">
+                                            <span class="setting-label">🧪 Active Brew Formula</span>
+                                            <span id="standRecipeQualityBadge" class="setting-mini-tag">10 Cups / Carafe</span>
+                                        </div>
+                                        <div class="recipe-mini-strip redesigned-recipe-strip">
+                                            <div class="rec-mini-item" title="Beans per Carafe"><span class="rec-ico">☕</span><span class="rec-name">Beans</span><span id="standRecBeans" class="rec-qty">1</span></div>
+                                            <div class="rec-mini-item" title="Milk per Cup"><span class="rec-ico">🥛</span><span class="rec-name">Milk</span><span id="standRecMilk" class="rec-qty">0</span></div>
+                                            <div class="rec-mini-item" title="Sugar per Cup"><span class="rec-ico">🍬</span><span class="rec-name">Sugar</span><span id="standRecSugar" class="rec-qty">0</span></div>
+                                            <div class="rec-mini-item" title="Ice per Cup"><span class="rec-ico">🧊</span><span class="rec-name">Ice</span><span id="standRecIce" class="rec-qty">0</span></div>
+                                            <div class="rec-mini-item" title="Syrup per Cup"><span class="rec-ico">🍯</span><span class="rec-name">Syrup</span><span id="standRecSyrup" class="rec-qty">0</span></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Owned Stand Equipment Carousel -->
+                                    <div class="setting-section-block">
+                                        <div class="setting-section-header">
+                                            <span class="setting-label">🛠️ Stand Gear & Upgrades</span>
+                                            <span class="setting-mini-tag">7 Categories</span>
+                                        </div>
+                                        <div class="owned-upgrades-carousel redesigned-upgrades-carousel">
+                                            <button type="button" id="btnPrevUpgrade" class="carousel-nav-btn" aria-label="Previous upgrade">◀</button>
+                                            <div id="standOwnedUpgrades" class="upgrades-carousel-strip"></div>
+                                            <button type="button" id="btnNextUpgrade" class="carousel-nav-btn" aria-label="Next upgrade">▶</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: SUPPLIES STORE (LEMONADE TYCOON STYLE) -->
+            <section id="tab_supplies" class="game-tab-content">
+                <div class="supplies-container">
+                    <div class="supplies-header">
+                        <div class="supplies-title-wrap">
+                            <h2 class="pixel-subtitle">🛒 Wholesale Supplies Store</h2>
+                            <p class="supplies-subtitle-desc">Select an ingredient category, set package batch quantities, and buy all in 1-click!</p>
+                        </div>
+                        <div id="suppliesIceWarning" class="spoilage-banner">
+                            ⚠️ Basic Cooler: 100% of leftover Ice melts &amp; 100% of leftover Milk spoils at the end of every day! Upgrade your cooler in Upgrades!
+                        </div>
+                    </div>
+
+                    <!-- Category Selector Sub-Tabs with Real-Time Stock Counts -->
+                    <div class="supplies-ingredient-tabs" id="suppliesIngredientTabs">
+                        <button type="button" class="supplies-subtab active" data-ingredient="beans">
+                            <span class="subtab-icon">☕</span>
+                            <span class="subtab-name">Beans</span>
+                            <span id="inv_beans" class="subtab-stock">0 scoops</span>
+                        </button>
+                        <button type="button" class="supplies-subtab" data-ingredient="milk">
+                            <span class="subtab-icon">🥛</span>
+                            <span class="subtab-name">Milk</span>
+                            <span id="inv_milk" class="subtab-stock">0 serv</span>
+                        </button>
+                        <button type="button" class="supplies-subtab" data-ingredient="sugar">
+                            <span class="subtab-icon">🍬</span>
+                            <span class="subtab-name">Sugar</span>
+                            <span id="inv_sugar" class="subtab-stock">0 packs</span>
+                        </button>
+                        <button type="button" class="supplies-subtab" data-ingredient="ice">
+                            <span class="subtab-icon">🧊</span>
+                            <span class="subtab-name">Ice</span>
+                            <span id="inv_ice" class="subtab-stock">0 cubes</span>
+                        </button>
+                        <button type="button" class="supplies-subtab" data-ingredient="cups">
+                            <span class="subtab-icon">🥤</span>
+                            <span class="subtab-name">Cups</span>
+                            <span id="inv_cups" class="subtab-stock">0 units</span>
+                        </button>
+                        <button type="button" class="supplies-subtab" data-ingredient="syrup">
+                            <span class="subtab-icon">🍯</span>
+                            <span class="subtab-name">Syrup</span>
+                            <span id="inv_syrup" class="subtab-stock">0 pumps</span>
+                        </button>
+                    </div>
+
+                    <!-- 3 Package Size Tiers for Selected Ingredient (Rendered Dynamically by game.js) -->
+                    <div id="suppliesPackageTiers" class="supplies-tiers-container">
+                        <!-- Populated dynamically by game.js: Small, Medium, Bulk tiers -->
+                    </div>
+
+                    <!-- Single 1-Click Checkout & Cart Summary Bar -->
+                    <div class="supplies-checkout-bar">
+                        <div class="cart-summary">
+                            <span class="cart-label">🛒 Order Total:</span>
+                            <span id="suppliesCartTotal" class="cart-total-price">$0.00</span>
+                            <span id="suppliesCartItemsCount" class="cart-items-count">(0 packages selected)</span>
+                        </div>
+                        <div class="cart-actions">
+                            <button type="button" id="btnResetSuppliesCart" class="pixel-btn btn-secondary">🔄 Reset</button>
+                            <button type="button" id="btnBuySuppliesCart" class="pixel-btn btn-primary btn-checkout">🛒 BUY NOW ($0.00)</button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden legacy catalog grid for backwards compatibility -->
+                    <div id="suppliesCatalogGrid" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- TAB 3: RECIPE TUNING -->
+            <section id="tab_recipe" class="game-tab-content">
+                <h2 class="pixel-subtitle">☕ Brew Recipe &amp; Pricing</h2>
+                <div class="recipe-layout">
+                    <!-- Sliders Panel -->
+                    <div class="recipe-sliders-panel">
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-title">☕ Beans per Batch (Strength):</span>
+                                <span id="val_beans" class="slider-val">1</span>
+                            </div>
+                            <div class="slider-control-row">
+                                <button type="button" class="stepper-btn" data-target="recipe_beans" data-step="-1">−</button>
+                                <input type="range" id="recipe_beans" min="1" max="5" value="1">
+                                <button type="button" class="stepper-btn" data-target="recipe_beans" data-step="1">+</button>
+                            </div>
+                            <small class="slider-hint">1 Batch yields 10 cups. Default 1 scoop is watery—add more beans for rich body!</small>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-title">🥛 Milk per Cup (Creaminess):</span>
+                                <span id="val_milk" class="slider-val">0</span>
+                            </div>
+                            <div class="slider-control-row">
+                                <button type="button" class="stepper-btn" data-target="recipe_milk" data-step="-1">−</button>
+                                <input type="range" id="recipe_milk" min="0" max="4" value="0">
+                                <button type="button" class="stepper-btn" data-target="recipe_milk" data-step="1">+</button>
+                            </div>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-title">🍬 Sugar per Cup (Sweetness):</span>
+                                <span id="val_sugar" class="slider-val">0</span>
+                            </div>
+                            <div class="slider-control-row">
+                                <button type="button" class="stepper-btn" data-target="recipe_sugar" data-step="-1">−</button>
+                                <input type="range" id="recipe_sugar" min="0" max="4" value="0">
+                                <button type="button" class="stepper-btn" data-target="recipe_sugar" data-step="1">+</button>
+                            </div>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-title">🧊 Ice Cubes per Cup (Cold Factor):</span>
+                                <span id="val_ice" class="slider-val">0</span>
+                            </div>
+                            <div class="slider-control-row">
+                                <button type="button" class="stepper-btn" data-target="recipe_ice" data-step="-1">−</button>
+                                <input type="range" id="recipe_ice" min="0" max="6" value="0">
+                                <button type="button" class="stepper-btn" data-target="recipe_ice" data-step="1">+</button>
+                            </div>
+                            <small class="slider-hint">0 for hot coffee. 2-4 cubes for iced coffee on sunny or scorching days!</small>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-title">🍯 Gourmet Syrup Pumps:</span>
+                                <span id="val_syrup" class="slider-val">0</span>
+                            </div>
+                            <div class="slider-control-row">
+                                <button type="button" class="stepper-btn" data-target="recipe_syrup" data-step="-1">−</button>
+                                <input type="range" id="recipe_syrup" min="0" max="3" value="0">
+                                <button type="button" class="stepper-btn" data-target="recipe_syrup" data-step="1">+</button>
+                            </div>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-title">💵 Selling Price per Cup:</span>
+                                <span id="val_price" class="slider-val">$2.50</span>
+                            </div>
+                            <div class="slider-control-row">
+                                <button type="button" class="stepper-btn" data-target="recipe_price" data-step="-0.25">−</button>
+                                <input type="range" id="recipe_price" min="1.00" max="12.00" step="0.25" value="2.50">
+                                <button type="button" class="stepper-btn" data-target="recipe_price" data-step="0.25">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Payment Methods Status Box (Upgraded via Registers in Upgrades tab) -->
+                        <div class="payment-methods-info-row">
+                            <span class="payment-info-lbl">💳 Accepted Payments:</span>
+                            <span id="recipePaymentBadge" class="payment-info-val">💵 Cash Only (Upgrade Registers for QRIS &amp; NFC Tap!)</span>
+                            <input type="checkbox" id="recipe_crypto" style="display: none;">
+                        </div>
+                    </div>
+
+                    <!-- Recipe Feedback & Quality Panel -->
+                    <div class="recipe-feedback-panel">
+                        <h3 class="pixel-subtitle">🔍 Taste &amp; Weather Analysis</h3>
+                        
+                        <div class="feedback-row">
+                            <span class="feedback-label">Bean &amp; Sweetness Balance:</span>
+                            <span id="recipeTasteScore" class="feedback-val">35% (Watery / Bitter)</span>
+                        </div>
+
+                        <div class="feedback-row">
+                            <span class="feedback-label">Weather &amp; Temperature Match:</span>
+                            <span id="recipeTempScore" class="feedback-val">55% (Needs Tuning)</span>
+                        </div>
+
+                        <div class="feedback-row">
+                            <span class="feedback-label">Estimated Overall Quality:</span>
+                            <span id="recipeOverallStars" class="feedback-val quality-stars">2.1 / 5.0 ⭐</span>
+                        </div>
+
+                        <div class="feedback-row">
+                            <span class="feedback-label">Estimated Cost per Cup:</span>
+                            <span id="recipeEstCost" class="feedback-val cost-val">$0.17</span>
+                        </div>
+
+                        <div class="feedback-row">
+                            <span class="feedback-label">Profit Margin per Cup:</span>
+                            <span id="recipeEstMargin" class="feedback-val margin-val">$2.33 (93%)</span>
+                        </div>
+
+                        <div class="barista-tip-card">
+                            💡 <strong>Barista Tip:</strong> Your starting recipe is weak and uncalibrated! Adjust Beans (2-3 scoops), Milk (1-2), Sugar (1-2), and match Ice to today's weather so customers love your brew!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: LOCATIONS (LEMONADE TYCOON CAROUSEL) -->
+            <section id="tab_locations" class="game-tab-content">
+                <div class="locations-header-bar">
+                    <h2 class="pixel-subtitle">📍 Stand Locations &amp; Demographics</h2>
+                    <div id="locCarouselCounter" class="loc-counter-badge">Location 1 of 20</div>
+                </div>
+
+                <!-- Tier Quick-Jump Filter Pills -->
+                <div id="locTierPills" class="loc-tier-pills">
+                    <button type="button" class="loc-tier-pill active" data-tier="all">All (20)</button>
+                    <button type="button" class="loc-tier-pill" data-tier="1">Tier 1 (Starter)</button>
+                    <button type="button" class="loc-tier-pill" data-tier="2">Tier 2 (Charming)</button>
+                    <button type="button" class="loc-tier-pill" data-tier="3">Tier 3 (High-Traffic)</button>
+                    <button type="button" class="loc-tier-pill" data-tier="4">Tier 4 (Bustling)</button>
+                    <button type="button" class="loc-tier-pill" data-tier="5">Tier 5 (Megacity)</button>
+                </div>
+
+                <!-- Lemonade Tycoon Location Stage -->
+                <div id="locationsCarousel" class="locations-carousel-stage">
+                    <!-- Nav Button: Previous (Left) -->
+                    <button type="button" id="btnLocPrev" class="loc-nav-btn loc-nav-prev" aria-label="Previous Location" title="Previous Location (Left Arrow)">
+                        <span class="loc-arrow-icon">◀</span>
+                    </button>
+
+                    <!-- Main Lemonade Tycoon Card Frame -->
+                    <div id="locCardFrame" class="loc-stage-card">
+                        <div class="loc-card-top-row">
+                            <!-- Left: Location Portrait -->
+                            <div id="locPortraitBox" class="location-portrait-box loc-carousel-portrait">
+                                <img id="locPortraitImg" src="assets/cul_de_sac_bg.jpg" alt="Location Preview" class="location-portrait-img">
+                                <div id="locPortraitBadge" class="location-portrait-badge">TIER 1</div>
+                            </div>
+
+                            <!-- Right: Name, Lore & Help Button -->
+                            <div class="loc-card-info-col">
+                                <div class="loc-card-title-row">
+                                    <div class="loc-title-group">
+                                        <h3 id="locCardTitle" class="loc-card-title">Quiet Cul-de-Sac</h3>
+                                        <span id="locCardTier" class="loc-card-tier">Tier 1 (Starter)</span>
+                                    </div>
+                                    <button type="button" id="locBtnHelp" class="loc-btn-help" title="Location Insights & Demographics" aria-label="Location Details">?</button>
+                                </div>
+                                <p id="locCardDesc" class="loc-card-desc">Sleepy suburban dead-end circle. Zero rent! Perfect for testing recipes on friendly neighbors.</p>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Row: Meters & Rent Display -->
+                        <div class="loc-card-bottom-row">
+                            <!-- Left: Meters -->
+                            <div class="loc-meters-block">
+                                <div class="loc-meter-line">
+                                    <div class="loc-meter-header">
+                                        <span class="loc-meter-name">popularity</span>
+                                        <span id="locPopVal" class="loc-meter-val">20%</span>
+                                    </div>
+                                    <div class="loc-meter-track">
+                                        <div id="locPopFill" class="loc-meter-fill fill-pop" style="width: 20%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="loc-meter-line">
+                                    <div class="loc-meter-header">
+                                        <span class="loc-meter-name">satisfaction</span>
+                                        <span id="locSatVal" class="loc-meter-val">55%</span>
+                                    </div>
+                                    <div class="loc-meter-track">
+                                        <div id="locSatFill" class="loc-meter-fill fill-sat" style="width: 55%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Rent Display Box -->
+                            <div class="loc-rent-box">
+                                <div class="loc-rent-label">UPFRONT RENT / DAY</div>
+                                <div id="locRentVal" class="loc-rent-val">$0.00</div>
+                            </div>
+                        </div>
+
+                        <!-- Expandable Help/Details Drawer (Demographics, Foot Traffic, Strategy) -->
+                        <div id="locHelpPopup" class="loc-help-drawer" style="display: none;">
+                            <div class="loc-help-header">
+                                <span>📋 Location Insights</span>
+                                <button type="button" id="locBtnHelpClose" class="loc-help-close-btn" aria-label="Close details">✕</button>
+                            </div>
+                            <div class="loc-help-grid">
+                                <div class="loc-help-stat">
+                                    <span class="stat-lbl">👥 Foot Traffic:</span>
+                                    <span id="locStatsFootTraffic" class="stat-val">~25 patrons/day</span>
+                                </div>
+                                <div class="loc-help-stat">
+                                    <span class="stat-lbl">💵 Price Tolerance:</span>
+                                    <span id="locStatsPriceTol" class="stat-val">~$2.75</span>
+                                </div>
+                                <div class="loc-help-stat full-width">
+                                    <span class="stat-lbl">🎯 Key Demographics:</span>
+                                    <span id="locStatsDemographics" class="stat-val">Retirees, Joggers, Students</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nav Button: Next (Right) -->
+                    <button type="button" id="btnLocNext" class="loc-nav-btn loc-nav-next" aria-label="Next Location" title="Next Location (Right Arrow)">
+                        <span class="loc-arrow-icon">▶</span>
+                    </button>
+                </div>
+
+                <!-- Action Button Row: Rent / Move Stand -->
+                <div class="loc-action-bar">
+                    <button type="button" id="locBtnRent" class="pixel-btn btn-lemonade-rent">
+                        🚚 RENT THIS LOCATION ($0.00 / day)
+                    </button>
+                </div>
+
+                <!-- Hidden fallback / compatibility grid for any legacy tests -->
+                <div id="locationsGrid" style="display: none;"></div>
+            </section>
+
+            <!-- TAB 5: UPGRADES (AUTHENTIC LEMONADE TYCOON 16-BIT CAROUSEL) -->
+            <section id="tab_upgrades" class="game-tab-content">
+                <div class="upgrades-header-bar">
+                    <div class="upgrades-header-text">
+                        <h2 class="pixel-subtitle">Upgrades</h2>
+                        <p class="upgrades-subtitle-desc">Improve your stand to attract more passersby, prevent spoilage, and serve faster!</p>
+                    </div>
+                    <div id="upgCarouselCounter" class="upg-counter-badge">Upgrade 1 of 27 • Brewers</div>
+                </div>
+
+                <!-- Category Quick-Jump Filter Pills -->
+                <div id="upgCategoryPills" class="upg-category-pills">
+                    <button type="button" class="upg-cat-pill active" data-cat="all">All (27)</button>
+                    <button type="button" class="upg-cat-pill" data-cat="machine">☕ Brewers (4)</button>
+                    <button type="button" class="upg-cat-pill" data-cat="cooler">🧊 Coolers (4)</button>
+                    <button type="button" class="upg-cat-pill" data-cat="grinder">⚙️ Grinders (3)</button>
+                    <button type="button" class="upg-cat-pill" data-cat="terminal">💳 Registers (3)</button>
+                    <button type="button" class="upg-cat-pill" data-cat="canopy">⛺ Canopies (3)</button>
+                    <button type="button" class="upg-cat-pill" data-cat="marketing">📢 Marketing (4)</button>
+                    <button type="button" class="upg-cat-pill" data-cat="decor">🎨 Carts (6)</button>
+                </div>
+
+                <!-- Lemonade Tycoon Upgrade Stage Carousel -->
+                <div id="upgradesCarousel" class="upgrades-carousel-stage">
+                    <!-- Nav Button: Previous (Left Arrow) -->
+                    <button type="button" id="btnUpgPrev" class="upg-nav-btn upg-nav-prev" aria-label="Previous Upgrade" title="Previous Upgrade (Left Arrow)">
+                        <span class="upg-arrow-icon">◀</span>
+                    </button>
+
+                    <!-- Main Lemonade Tycoon Retro Card Frame -->
+                    <div id="upgCardFrame" class="upg-stage-card">
+                        <div class="upg-card-content">
+                            <!-- Left: 16-Bit Pixel Art Portrait Box -->
+                            <div id="upgPortraitBox" class="upg-portrait-box">
+                                <img id="upgPortraitImg" src="assets/upg_machine_1.png" alt="Upgrade Portrait" class="upg-portrait-img">
+                                <div id="upgPortraitBadge" class="upg-portrait-badge">LEVEL 1</div>
+                            </div>
+
+                            <!-- Right: Name, Category, Description, Perks & Price -->
+                            <div class="upg-card-info-col">
+                                <div class="upg-card-title-row">
+                                    <div class="upg-title-group">
+                                        <h3 id="upgCardTitle" class="upg-card-title">French Press &amp; Drip Pot</h3>
+                                        <span id="upgCategoryTag" class="upg-card-cat">Espresso Machines • Level 1</span>
+                                    </div>
+                                    <button type="button" id="upgBtnHelp" class="upg-btn-help" title="Equipment Specs & Insights" aria-label="Upgrade Specifications">?</button>
+                                </div>
+
+                                <p id="upgCardDesc" class="upg-card-desc">Slow manual drip. Basic aroma.</p>
+
+                                <div id="upgPerksList" class="upg-perks-list">
+                                    <span class="upg-perk-chip">⚡ Brew: 2.8s</span>
+                                    <span class="upg-perk-chip">⭐ Taste: +0%</span>
+                                    <span class="upg-perk-chip">📦 Yield: 10 Cups</span>
+                                </div>
+
+                                <!-- Recessed Price Box (Lemonade Tycoon Style) -->
+                                <div class="upg-price-row">
+                                    <div class="upg-price-box">
+                                        <span class="upg-price-label">PRICE</span>
+                                        <span id="upgPriceVal" class="upg-price-val">FREE</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nav Button: Next (Right Arrow) -->
+                    <button type="button" id="btnUpgNext" class="upg-nav-btn upg-nav-next" aria-label="Next Upgrade" title="Next Upgrade (Right Arrow)">
+                        <span class="upg-arrow-icon">▶</span>
+                    </button>
+                </div>
+
+                <!-- Bottom Action Row: Big BUY / OWNED Button -->
+                <div class="upgrades-action-bar">
+                    <div class="upg-action-status">
+                        <span id="upgStatusHint" class="upg-status-hint">Default Starter Equipment • Active</span>
+                    </div>
+                    <button type="button" id="upgBtnBuy" class="pixel-btn upg-btn-buy">
+                        OWNED ★
+                    </button>
+                </div>
+
+                <!-- Help & Specifications Drawer (Toggleable via ?) -->
+                <div id="upgHelpPopup" class="upg-help-drawer" style="display: none;">
+                    <div class="upg-help-header">
+                        <span class="upg-help-title">🛠️ Equipment Technical Specifications</span>
+                        <button type="button" id="upgBtnHelpClose" class="upg-help-close-btn" aria-label="Close Specs">✕</button>
+                    </div>
+                    <div class="upg-help-body">
+                        <p id="upgHelpText" class="upg-help-text">Detailed specifications...</p>
+                        <div class="upg-help-grid">
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">Operational Speed:</span>
+                                <strong id="upgHelpSpeed">2.8s Brew</strong>
+                            </div>
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">Quality Rating:</span>
+                                <strong id="upgHelpQuality">Standard (+0%)</strong>
+                            </div>
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">Weather Defense:</span>
+                                <strong id="upgHelpWeather">None (Open)</strong>
+                            </div>
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">Financial Return:</span>
+                                <strong id="upgHelpROI">Starter Item</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stand Owned Upgrades Summary Row (Mini Badges) -->
+                <div class="upgrades-summary-card">
+                    <h3 class="pixel-subtitle-sm">Stand Equipment Summary</h3>
+                    <div id="upgOwnedStrip" class="upg-owned-badges-strip">
+                        <!-- Populated dynamically: 7 badges for machine, cooler, grinder, terminal, canopy, marketing, decor -->
+                    </div>
+                </div>
+
+                <!-- Legacy upgradesGrid kept hidden for backward compatibility -->
+                <div id="upgradesGrid" style="display: none;"></div>
+            </section>
+
+            <!-- TAB 6: STAFF HIRING (AUTHENTIC LEMONADE TYCOON CAROUSEL) -->
+            <section id="tab_staff" class="game-tab-content">
+                <div class="upgrades-header-bar">
+                    <div class="upgrades-header-text">
+                        <h2 class="pixel-subtitle">Staff</h2>
+                        <p class="upgrades-subtitle-desc">Hire staff to increase sales, speed up customer service, or improve customer satisfaction.</p>
+                    </div>
+                    <div id="staffCarouselCounter" class="upg-counter-badge">Staff 1 of 4 • Cashier</div>
+                </div>
+
+                <!-- Staff Quick-Select Pills -->
+                <div id="staffCategoryPills" class="upg-category-pills">
+                    <button type="button" class="upg-cat-pill staff-pill active" data-staff-idx="0">💁‍♀️ Martine ($60/d)</button>
+                    <button type="button" class="upg-cat-pill staff-pill" data-staff-idx="1">🎭 Simon ($80/d)</button>
+                    <button type="button" class="upg-cat-pill staff-pill" data-staff-idx="2">📣 Chloe ($95/d)</button>
+                    <button type="button" class="upg-cat-pill staff-pill" data-staff-idx="3">👨‍🍳 Marco ($120/d)</button>
+                </div>
+
+                <!-- Lemonade Tycoon Staff Stage Carousel -->
+                <div id="staffCarousel" class="upgrades-carousel-stage">
+                    <!-- Nav Button: Previous (Left Arrow) -->
+                    <button type="button" id="btnStaffPrev" class="upg-nav-btn upg-nav-prev" aria-label="Previous Staff" title="Previous Staff Member (Left Arrow)">
+                        <span class="upg-arrow-icon">◀</span>
+                    </button>
+
+                    <!-- Main Lemonade Tycoon Staff Card Frame -->
+                    <div id="staffCardFrame" class="upg-stage-card">
+                        <div class="upg-card-content">
+                            <!-- Left: 16-Bit Pixel Art Staff Portrait Box -->
+                            <div id="staffPortraitBox" class="upg-portrait-box">
+                                <img id="staffPortraitImg" src="assets/staff_cashier.png" alt="Staff Portrait" class="upg-portrait-img">
+                                <div id="staffPortraitBadge" class="upg-portrait-badge">AVAILABLE</div>
+                            </div>
+
+                            <!-- Right: Name, Role, Description, Perks & Daily Wage -->
+                            <div class="upg-card-info-col">
+                                <div class="upg-card-title-row">
+                                    <div class="upg-title-group">
+                                        <h3 id="staffCardTitle" class="upg-card-title">Martine the Cashier</h3>
+                                        <span id="staffRoleTag" class="upg-card-cat">Speedy Checkout Specialist</span>
+                                    </div>
+                                    <button type="button" id="staffBtnHelp" class="upg-btn-help" title="Staff Profile & Perks" aria-label="Staff Details">?</button>
+                                </div>
+
+                                <p id="staffCardDesc" class="upg-card-desc">Friendly and quick, she serves customers much faster! +35% service speed &amp; +10% tips.</p>
+
+                                <div id="staffPerksList" class="upg-perks-list">
+                                    <span class="upg-perk-chip">⚡ Speed: +35%</span>
+                                    <span class="upg-perk-chip">🎯 Attraction: +8%</span>
+                                    <span class="upg-perk-chip">💝 Tips: +10%</span>
+                                </div>
+
+                                <!-- Recessed Daily Wage Box (Lemonade Tycoon Style) -->
+                                <div class="upg-price-row">
+                                    <div class="upg-price-box">
+                                        <span class="upg-price-label">WAGE</span>
+                                        <span id="staffWageVal" class="upg-price-val">$60.00 / day</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nav Button: Next (Right Arrow) -->
+                    <button type="button" id="btnStaffNext" class="upg-nav-btn upg-nav-next" aria-label="Next Staff" title="Next Staff Member (Right Arrow)">
+                        <span class="upg-arrow-icon">▶</span>
+                    </button>
+                </div>
+
+                <!-- Bottom Action Row: Hire Staff / Dismiss Button -->
+                <div class="upgrades-action-bar">
+                    <div class="upg-action-status">
+                        <span id="staffStatusHint" class="upg-status-hint">Paid daily at closing • Active Staff Payroll: $0.00 / day</span>
+                    </div>
+                    <button type="button" id="staffBtnHire" class="pixel-btn upg-btn-buy">
+                        Hire Staff
+                    </button>
+                </div>
+
+                <!-- Staff Help Drawer (Toggleable via ?) -->
+                <div id="staffHelpPopup" class="upg-help-drawer" style="display: none;">
+                    <div class="upg-help-header">
+                        <span class="upg-help-title">👩‍🍳 Staff Member Profile &amp; Daily Perks</span>
+                        <button type="button" id="staffBtnHelpClose" class="upg-help-close-btn" aria-label="Close Profile">✕</button>
+                    </div>
+                    <div class="upg-help-body">
+                        <p id="staffHelpText" class="upg-help-text">Detailed staff profile...</p>
+                        <div class="upg-help-grid">
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">⚡ Service Speed:</span>
+                                <strong id="staffHelpSpeed">+35% Faster Service</strong>
+                            </div>
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">🎯 Customer Pull:</span>
+                                <strong id="staffHelpAttract">+8% Stop / +0% Foot Traffic</strong>
+                            </div>
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">💝 Tips &amp; Quality:</span>
+                                <strong id="staffHelpTip">+10% Tips</strong>
+                            </div>
+                            <div class="upg-help-item">
+                                <span class="upg-help-item-label">⏳ Queue Patience:</span>
+                                <strong id="staffHelpPatience">Standard</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Hired Staff Summary Row -->
+                <div class="upgrades-summary-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+                        <h3 class="pixel-subtitle-sm" style="margin: 0;">Active Stand Staff Roster</h3>
+                        <span id="staffTotalWageLabel" class="staff-pill">Total Daily Payroll: $0.00 / day</span>
+                    </div>
+                    <div id="staffHiredStrip" class="upg-owned-badges-strip">
+                        <!-- Populated dynamically by game.js -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: MARKETING & PRICING (LEMONADE TYCOON MINIMALIST FORMAT) -->
+            <section id="tab_marketing" class="game-tab-content">
+                <div class="marketing-dashboard">
+                    <div class="marketing-header-card">
+                        <div class="marketing-header-text">
+                            <h2 class="pixel-subtitle">📢 Marketing & Cup Pricing Strategy</h2>
+                            <p class="marketing-subtitle-desc">
+                                Set your retail price per cup and allocate a daily advertising budget to drive customer foot traffic, inspired directly by Lemonade Tycoon.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CARD 1: RETAIL SELLING PRICE SLIDER -->
+                    <div class="pixel-card marketing-card">
+                        <div class="marketing-card-header">
+                            <span class="marketing-card-title">☕ Retail Coffee Price per Cup</span>
+                            <span id="marketingPriceBadge" class="marketing-badge badge-price">Standard Pricing</span>
+                        </div>
+                        <p class="card-subtext">
+                            Determine your selling price. Lower prices boost customer satisfaction & volume; higher prices yield higher profit margins per cup.
+                        </p>
+
+                        <div class="marketing-slider-row">
+                            <button type="button" class="stepper-btn marketing-stepper-btn" id="btnMarketingPriceMinus" data-target="marketing_price" data-step="-0.25">−</button>
+                            <div class="slider-track-wrap">
+                                <input type="range" id="marketing_price" min="1.00" max="12.00" step="0.25" value="3.50" class="retro-slider">
+                            </div>
+                            <button type="button" class="stepper-btn marketing-stepper-btn" id="btnMarketingPricePlus" data-target="marketing_price" data-step="0.25">+</button>
+                            <span id="val_marketing_price" class="slider-val-large">$3.50</span>
+                        </div>
+
+                        <!-- Real-time Cost & Margin per Cup Readout -->
+                        <div class="marketing-metrics-strip">
+                            <div class="metric-box">
+                                <span class="metric-label">Estimated Ingredient Cost:</span>
+                                <span id="marketingEstCost" class="metric-val">$0.65 / cup</span>
+                            </div>
+                            <div class="metric-box">
+                                <span class="metric-label">Profit Margin per Cup:</span>
+                                <span id="marketingEstMargin" class="metric-val metric-profit">+$2.85 (81%)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: DAILY MARKETING & ADVERTISING BUDGET SLIDER -->
+                    <div class="pixel-card marketing-card">
+                        <div class="marketing-card-header">
+                            <span class="marketing-card-title">📢 Daily Advertising & Marketing Budget</span>
+                            <span id="marketingTierStatus" class="marketing-badge badge-organic">🌱 Organic (Word of Mouth)</span>
+                        </div>
+                        <p class="card-subtext">
+                            Allocate daily ad budget ($0 - $50/day) deducted each morning to promote your coffee stand across digital channels.
+                        </p>
+
+                        <div class="marketing-slider-row">
+                            <button type="button" class="stepper-btn marketing-stepper-btn" id="btnMarketingBudgetMinus" data-target="marketing_budget" data-step="-5">−</button>
+                            <div class="slider-track-wrap">
+                                <input type="range" id="marketing_budget" min="0" max="50" step="1" value="0" class="retro-slider">
+                            </div>
+                            <button type="button" class="stepper-btn marketing-stepper-btn" id="btnMarketingBudgetPlus" data-target="marketing_budget" data-step="5">+</button>
+                            <span id="val_marketing_budget" class="slider-val-large">$0.00 / day</span>
+                        </div>
+
+                        <div class="marketing-tier-details">
+                            <div class="tier-metric-row">
+                                <span class="tier-label">Target Foot Traffic Surge:</span>
+                                <span id="marketingTrafficBonus" class="tier-val-traffic">+0% Visitors</span>
+                            </div>
+                            <div id="marketingTierDesc" class="tier-description">
+                                Free organic walk-ins. Zero daily ad spend.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: SPECIAL /boost HYPER-FLOW CAMPAIGN -->
+                    <div class="boost-terminal-card marketing-boost-card">
+                        <div class="boost-title">
+                            <span class="boost-icon">⚡</span>
+                            <span>🚀 /boost HYPER-FLOW CAMPAIGN</span>
+                        </div>
+                        <div class="boost-desc">
+                            Launch a city-wide viral TikTok &amp; Express Barista blitz! Activating <strong>/boost</strong> surges foot traffic by <strong>+90%</strong>, boosts stop attraction by <strong>+15%</strong>, accelerates barista service speed by <strong>+35%</strong>, and expands queue capacity by <strong>+4 spots</strong>!
+                        </div>
+                        <div class="boost-status-row">
+                            Status: <strong id="boostStatusText">Ready ($100.00 Cash • 3-Day Cooldown)</strong> <span class="boost-cost-note">($100.00 Cash • 3-Day Cooldown)</span>
+                        </div>
+                        <button type="button" id="btnActivateBoost" class="btn-boost-huge">
+                            ⚡ ACTIVATE /boost ($100.00 CASH • HYPER-FLOW)
+                        </button>
+                    </div>
+
+                    <!-- ADVANCED BRANDING DRAWER -->
+                    <details class="marketing-advanced-drawer">
+                        <summary class="advanced-drawer-title">⚙️ Franchise Stand Branding (Optional)</summary>
+                        <div class="advanced-drawer-content">
+                            <!-- Franchise Custom Branding -->
+                            <div class="franchise-brand-card pixel-card">
+                                <div class="brand-setting-row">
+                                    <div>
+                                        <h3 class="pixel-subtitle">🏷️ Franchise Stand Branding</h3>
+                                        <small class="brand-subtext">Your brand name appears on the Global Barista Leaderboard.</small>
+                                    </div>
+                                    <div class="brand-input-group">
+                                        <input type="text" id="inputFranchiseName" value="Master Zay's Roastery" class="brand-input">
+                                        <button type="button" id="btnSaveFranchiseName" class="pixel-btn btn-primary">Save Name</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden for backward compatibility -->
+                            <div class="web3-row-grid" style="display: none;">
+                                <!-- Wallet Status Card -->
+                                <div class="wallet-card">
+                                    <div class="wallet-header">
+                                        <span class="wallet-title">🦊 Coffede Vault</span>
+                                        <span id="web3WalletStatus" class="crypto-badge">Simulated / Offline</span>
+                                    </div>
+                                    <div class="wallet-address">
+                                        Address: <span id="web3AddressDisplay">0x71C84...4e9F</span>
+                                    </div>
+                                    <div class="token-balances-row">
+                                        <div class="token-chip token-usdc">
+                                            💵 <span id="web3USDCDisplay">15.00 USDC</span>
+                                        </div>
+                                        <div class="token-chip token-bean">
+                                            ☕ <span id="web3BeanDisplay">50 $BEAN</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-btn-row">
+                                        <button type="button" id="btnConnectWallet" class="pixel-btn btn-crypto btn-block">
+                                            🦊 Connect Vault
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Tip Jar Card -->
+                                <div class="tipjar-card pixel-card">
+                                    <div class="wallet-header">
+                                        <span class="wallet-title">🍯 Tip Jar</span>
+                                        <span class="crypto-badge badge-community">Community Tips</span>
+                                    </div>
+                                    <p class="card-subtext">
+                                        Grateful patrons drop tips here.
+                                    </p>
+                                    <div class="token-balances-row">
+                                        <div class="token-chip token-cash">
+                                            💵 <span id="tipJarCashDisplay">$0.00 Cash</span>
+                                        </div>
+                                        <div class="token-chip token-usdc">
+                                            🚀 <span id="tipJarUSDCDisplay">0.00 USDC</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-btn-group">
+                                        <button type="button" id="btnCollectTipJar" class="pixel-btn btn-primary flex-1">
+                                            💰 Collect Tips
+                                        </button>
+                                        <button type="button" id="btnTipBarista" class="pixel-btn btn-crypto flex-1">
+                                            ☕ Tip Barista
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Instant Liquidity Swap -->
+                                <div class="swap-card pixel-card">
+                                    <div class="wallet-header">
+                                        <span class="wallet-title">💱 Instant Liquidity Swap</span>
+                                        <span class="crypto-badge badge-peg">1:1 Peg</span>
+                                    </div>
+                                    <p class="card-subtext">
+                                        Swap rewards into Cash anytime.
+                                    </p>
+                                    <div class="dex-swap-actions">
+                                        <div class="dex-swap-row">
+                                            <button type="button" id="btnSwapUSDCToCash" class="pixel-btn btn-crypto flex-1">
+                                                Swap 10 ➔ $10 Cash
+                                            </button>
+                                            <button type="button" id="btnSwapCashToUSDC" class="pixel-btn btn-secondary flex-1">
+                                                Swap $10 Cash ➔ 10
+                                            </button>
+                                        </div>
+                                        <button type="button" id="btnSwapBeanToCash" class="pixel-btn btn-bean btn-block">
+                                            Redeem 20 $BEAN ➔ $2.00 Cash
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden NFT Franchise Section -->
+                            <div class="nft-section" style="display: none;">
+                                <div class="nft-section-header">
+                                    <div>
+                                        <h3 class="pixel-subtitle">💎 Franchise Certificates</h3>
+                                        <small class="brand-subtext">Mint certified proof-of-roast cards as your coffee empire expands!</small>
+                                    </div>
+                                    <button type="button" id="btnMintNFT" class="pixel-btn btn-crypto">
+                                        📜 Mint Certificate
+                                    </button>
+                                </div>
+                                <div id="nftGalleryGrid" class="nft-grid">
+                                    <!-- Populated dynamically by game.js -->
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Hidden alias for backward compatibility -->
+            <section id="tab_web3" class="game-tab-content" style="display: none;"></section>
+
+            <!-- TAB 7: LEADERBOARD -->
+            <section id="tab_leaderboard" class="game-tab-content">
+                <div class="tab-header-row">
+                    <div>
+                        <h2 class="pixel-subtitle">🏆 Global Barista Leaderboard</h2>
+                        <small class="brand-subtext">Rankings of top coffee moguls across the Coffede network.</small>
+                    </div>
+                    <button id="btnRefreshLeaderboard" class="pixel-btn btn-refresh">🔄 Refresh Ranks</button>
+                </div>
+                <div class="ledger-table-wrapper">
+                    <table class="ledger-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Franchise Stand</th>
+                                <th>Owner</th>
+                                <th>NFT Certificate</th>
+                                <th>Cups Sold</th>
+                                <th>Total Net Worth</th>
+                                <th>Reputation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTableBody">
+                            <!-- Populated dynamically by game.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 8: LEDGER -->
+            <section id="tab_ledger" class="game-tab-content">
+                <div class="tab-header-row">
+                    <div>
+                        <h2 class="pixel-subtitle">📊 Financial Balance Sheet History</h2>
+                        <small class="brand-subtext">Official bookkeeping records of daily business operations.</small>
+                    </div>
+                </div>
+                <div class="ledger-table-wrapper">
+                    <table class="ledger-table">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Location</th>
+                                <th>Weather</th>
+                                <th>Cups</th>
+                                <th>Revenue</th>
+                                <th>Expenses</th>
+                                <th>Net Profit</th>
+                                <th>Closing Cash</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerTableBody">
+                            <!-- Populated dynamically by game.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 9: MAP EDITOR (VISUAL LEVEL, WAYPOINTS & CAMERA EDITOR) -->
+            <section id="tab_editor" class="game-tab-content">
+                <div class="editor-container">
+                    
+                    <!-- EDITOR TOP TOOLBAR -->
+                    <div class="editor-toolbar">
+                        <!-- Location Switcher Buttons & Dropdown -->
+                        <div class="editor-tool-group">
+                            <span class="editor-group-label">📍 Map:</span>
+                            <div class="editor-loc-buttons" id="editorLocButtons" style="display: flex; gap: 6px; align-items: center;">
+                                <select id="editorLocSelect" class="pixel-select" style="font-family: inherit; font-size: 0.82rem; padding: 4px 8px; background: #0f172a; color: #38bdf8; border: 2px solid #38bdf8; border-radius: 4px; cursor: pointer;">
+                                    <optgroup label="Tier 1: Starter ($0 - $15)">
+                                        <option value="cul_de_sac" selected>🏡 Quiet Cul-de-Sac</option>
+                                        <option value="community_garden">🌱 Community Garden</option>
+                                        <option value="public_library">📚 Town Public Library</option>
+                                        <option value="suburbs">🏡 Greenwood Suburbs</option>
+                                    </optgroup>
+                                    <optgroup label="Tier 2: Charming ($22 - $45)">
+                                        <option value="lake_marina">⛵ Lakefront Marina</option>
+                                        <option value="campsite">🏕️ Pine Forest Campsite</option>
+                                        <option value="farmers_market">🍎 Village Farmers Market</option>
+                                        <option value="park">🌳 Central City Park</option>
+                                    </optgroup>
+                                    <optgroup label="Tier 3: High-Traffic ($55 - $90)">
+                                        <option value="beach_boardwalk">🏖️ Sunny Beach Boardwalk</option>
+                                        <option value="construction_site">🏗️ Downtown Construction Site</option>
+                                        <option value="art_district">🎨 Bohemian Art District</option>
+                                        <option value="campus">🎓 Tech University Campus</option>
+                                    </optgroup>
+                                    <optgroup label="Tier 4: Bustling ($110 - $165)">
+                                        <option value="amusement_pier">🎡 Amusement Boardwalk Pier</option>
+                                        <option value="sports_complex">🏟️ City Sports Complex</option>
+                                        <option value="shopping_mall">🛍️ Grand Galleria Mall</option>
+                                        <option value="hospital_plaza">🏥 Metro Medical Center</option>
+                                    </optgroup>
+                                    <optgroup label="Tier 5: Megacity Peak ($190 - $300)">
+                                        <option value="metro">🚇 Grand Central Metro</option>
+                                        <option value="convention_center">🎪 Convention & Expo Center</option>
+                                        <option value="downtown">🏙️ Wall St. Financial Plaza</option>
+                                        <option value="airport_terminal">✈️ International Airport Terminal</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tool Mode Selector -->
+                        <div class="editor-tool-group">
+                            <span class="editor-group-label">🛠️ Tool:</span>
+                            <div class="editor-mode-buttons">
+                                <button type="button" id="btnToolSelect" class="pixel-btn editor-tool-btn active" title="Select & Drag Elements (Waypoints, Stand, Queue)">🖱️ Select</button>
+                                <button type="button" id="btnToolAddWp" class="pixel-btn editor-tool-btn" title="Click Canvas to Add Waypoints">➕ Add WP</button>
+                                <button type="button" id="btnToolPan" class="pixel-btn editor-tool-btn" title="Pan / Drag Canvas (or hold Spacebar)">🖐️ Pan</button>
+                            </div>
+                        </div>
+
+                        <!-- Camera Zoom Controls -->
+                        <div class="editor-tool-group">
+                            <span class="editor-group-label">🔍 Zoom:</span>
+                            <div class="editor-zoom-buttons">
+                                <button type="button" id="btnEditorZoomOut" class="pixel-btn zoom-btn" title="Zoom Out">−</button>
+                                <input type="range" id="sliderEditorZoom" class="editor-zoom-slider" min="0.5" max="2.5" step="0.05" value="1.0" title="Camera Zoom (0.5x - 2.5x)">
+                                <span id="editorZoomVal" class="zoom-value-label">100%</span>
+                                <button type="button" id="btnEditorZoomIn" class="pixel-btn zoom-btn" title="Zoom In">+</button>
+                                <button type="button" id="btnEditorResetView" class="pixel-btn zoom-btn btn-reset-view" title="Reset View & Pan (1.0x)">1.0x</button>
+                            </div>
+                        </div>
+
+                        <!-- View Toggles & Test Simulation -->
+                        <div class="editor-tool-group">
+                            <button type="button" id="btnToggleGrid" class="pixel-btn editor-toggle-btn active" title="Toggle Coordinate Grid">📐 Grid</button>
+                            <button type="button" id="btnToggleCrosshair" class="pixel-btn editor-toggle-btn active" title="Toggle Coordinate Crosshair">➕ Crosshair</button>
+                            <button type="button" id="btnToggleForeground" class="pixel-btn editor-toggle-btn" title="Toggle Foreground Architecture">🏛️ Foreground</button>
+                            <button type="button" id="btnTestSimulation" class="pixel-btn btn-test-sim" title="Toggle Test Walkers Simulation">▶️ Test Walkers</button>
+                            <button type="button" id="btnRespawnTestWalkers" class="pixel-btn btn-respawn-sim" title="Clear & Respawn Test Walkers">🔄 Respawn</button>
+                        </div>
+                    </div>
+
+                    <!-- EDITOR MAIN WORKSPACE (2-COLUMN: CANVAS VIEWPORT + INSPECTOR SIDEBAR) -->
+                    <div class="editor-workspace">
+                        
+                        <!-- LEFT: CANVAS VIEWPORT & STATUS BAR -->
+                        <div class="editor-canvas-column">
+                            <div class="editor-canvas-wrapper" id="editorCanvasWrapper">
+                                <canvas id="editorCanvas" width="1280" height="720"></canvas>
+                                <!-- Floating Coordinate & Status Overlay -->
+                                <div class="editor-canvas-hud">
+                                    <span id="editorCoordsHUD" class="editor-hud-coords">X: 0 | Y: 0</span>
+                                    <span id="editorSelectedHUD" class="editor-hud-selected">Active: Route 1</span>
+                                    <span id="editorZoomHUD" class="editor-hud-zoom">1.0x</span>
+                                </div>
+                            </div>
+                            <div class="editor-quick-hints">
+                                💡 <strong>Controls:</strong> Click & drag Stand cart or Queue nodes to relocate. Click to select waypoint, drag to reposition. Right-click waypoint to delete. Mouse wheel to zoom. Hold Space to pan.
+                            </div>
+                        </div>
+
+                        <!-- RIGHT: INSPECTOR & CONTROLS SIDEBAR -->
+                        <div class="editor-sidebar">
+                            
+                            <!-- CARD 1: STAND & QUEUE CONFIG -->
+                            <div class="tycoon-green-card editor-card">
+                                <div class="tycoon-card-title">☕ STAND & QUEUE PLACEMENT</div>
+                                <div class="tycoon-card-body">
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Stand Position (X, Y):</label>
+                                        <div class="editor-coord-inputs">
+                                            <input type="number" id="inputStandX" class="editor-num-input" value="235">
+                                            <input type="number" id="inputStandY" class="editor-num-input" value="180">
+                                        </div>
+                                    </div>
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Counter Offset (X, Y):</label>
+                                        <div class="editor-coord-inputs">
+                                            <input type="number" id="inputCounterX" class="editor-num-input" value="252">
+                                            <input type="number" id="inputCounterY" class="editor-num-input" value="192">
+                                        </div>
+                                    </div>
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Queue Start Q0 (X, Y):</label>
+                                        <div class="editor-coord-inputs">
+                                            <input type="number" id="inputQueueStartX" class="editor-num-input" value="265">
+                                            <input type="number" id="inputQueueStartY" class="editor-num-input" value="200">
+                                        </div>
+                                    </div>
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Queue Step / Spacing (X, Y):</label>
+                                        <div class="editor-coord-inputs">
+                                            <input type="number" id="inputQueueStepX" class="editor-num-input" value="30">
+                                            <input type="number" id="inputQueueStepY" class="editor-num-input" value="15">
+                                        </div>
+                                    </div>
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Decision Distance:</label>
+                                        <div class="editor-coord-inputs">
+                                            <input type="number" id="inputDecisionDist" class="editor-num-input" value="36" min="15" max="100">
+                                            <span class="editor-unit">px</span>
+                                        </div>
+                                    </div>
+                                    <!-- Dynamic Per-Spot Queue Editor (Bending / Curved Queues) -->
+                                    <div class="editor-field-row queue-spots-header">
+                                        <label class="editor-label">Curved Queue Spots (Q0..Qn):</label>
+                                        <div class="queue-btn-row">
+                                            <button type="button" id="btnAddQueueSpot" class="pixel-btn btn-secondary btn-xs" title="Add a new curved queue spot">➕ Add Spot</button>
+                                            <button type="button" id="btnDeleteQueueSpot" class="pixel-btn btn-secondary btn-xs btn-danger-soft" title="Remove the last queue spot">🗑️ Del Spot</button>
+                                            <button type="button" id="btnStraightenQueue" class="pixel-btn btn-secondary btn-xs" title="Reset spots into a straight line">↺ Straighten</button>
+                                        </div>
+                                    </div>
+                                    <div class="editor-queue-spots-list" id="editorQueueSpotsList">
+                                        <!-- Dynamically generated list of queue spots Q0..Qn with coordinates -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 2: WAYPOINT & PATH CONTROLS -->
+                            <div class="tycoon-green-card editor-card">
+                                <div class="tycoon-card-title">🚶 PATH & WAYPOINT EDITOR</div>
+                                <div class="tycoon-card-body">
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Select Route:</label>
+                                        <select id="selectActivePath" class="editor-select">
+                                            <option value="0">Route 1 (Main Sidewalk)</option>
+                                        </select>
+                                    </div>
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Spawn Direction / Entry Flow:</label>
+                                        <div class="editor-spawn-buttons" id="editorSpawnButtons">
+                                            <button type="button" class="pixel-btn editor-spawn-btn active" data-dir="both" title="Pedestrians spawn from both ends (Two-way flow)">⇄ Both</button>
+                                            <button type="button" class="pixel-btn editor-spawn-btn" data-dir="left_to_right" title="Pedestrians spawn ONLY from left entrance (One-way ➡)">➡ Left Only</button>
+                                            <button type="button" class="pixel-btn editor-spawn-btn" data-dir="right_to_left" title="Pedestrians spawn ONLY from right entrance (One-way ⬅)">⬅ Right Only</button>
+                                        </div>
+                                    </div>
+                                    <div class="editor-btn-row">
+                                        <button type="button" id="btnAddPath" class="pixel-btn btn-secondary btn-sm">➕ Add Path</button>
+                                        <button type="button" id="btnDeletePath" class="pixel-btn btn-secondary btn-sm btn-danger-soft">🗑️ Del Path</button>
+                                        <button type="button" id="btnReversePath" class="pixel-btn btn-secondary btn-sm" title="Reverse waypoint direction">⇄ Reverse</button>
+                                    </div>
+                                    <div class="editor-btn-row">
+                                        <button type="button" id="btnAlignStartLeft" class="pixel-btn btn-secondary btn-xs" title="Snap Start offscreen left (-60px)">⬅ Align Start (-60)</button>
+                                        <button type="button" id="btnAlignEndRight" class="pixel-btn btn-secondary btn-xs" title="Snap End offscreen right (700px)">Align End (700) ➡</button>
+                                    </div>
+                                    <div class="editor-field-row waypoint-list-header">
+                                        <span class="editor-label">Waypoints in Route:</span>
+                                        <div class="wp-action-buttons">
+                                            <button type="button" id="btnAddWpAtEnd" class="pixel-btn btn-secondary btn-xs" title="Add a new waypoint at the end of route">➕ Add Point</button>
+                                            <button type="button" id="btnDeleteSelectedWp" class="pixel-btn btn-secondary btn-xs btn-danger-soft" title="Delete currently selected waypoint">🗑️ Delete Point</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Selected Waypoint Inspector -->
+                                    <div id="selectedWpInspector" class="selected-wp-inspector" style="display: none;">
+                                        <div class="selected-wp-header">
+                                            <span class="editor-label" id="labelSelectedWpTitle">Selected Point: #1</span>
+                                            <button type="button" id="btnInsertWpAfter" class="pixel-btn btn-secondary btn-xs" title="Insert a new point right after this point">➕ Insert Next</button>
+                                        </div>
+                                        <div class="editor-coord-inputs">
+                                            <label class="editor-unit">X:</label>
+                                            <input type="number" id="inputWpX" class="editor-num-input" value="0">
+                                            <label class="editor-unit">Y:</label>
+                                            <input type="number" id="inputWpY" class="editor-num-input" value="0">
+                                        </div>
+                                    </div>
+
+                                    <div class="editor-waypoint-list" id="editorWaypointList">
+                                        <!-- Dynamically generated list of waypoints with coordinates -->
+                                    </div>
+                                    <div class="editor-sub-hints">
+                                        💡 <strong>Tips:</strong> Klik <strong>"➕ Add Point"</strong> atau double-click di kanvas untuk menambah titik. Klik <strong>"✕"</strong> di daftar untuk hapus. Seret (drag) titik mana saja di kanvas ke lokasi yang Master mau!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 3: MAP PROPS & ASSETS -->
+                            <div class="tycoon-green-card editor-card">
+                                <div class="tycoon-card-title">🎨 MAP PROPS & ASSET LIBRARY</div>
+                                <div class="tycoon-card-body">
+                                    <div class="editor-field-row">
+                                        <label class="editor-label">Add Prop to Map:</label>
+                                        <div class="prop-add-bar">
+                                            <select id="selectPropCatalog" class="editor-select">
+                                                <option value="cafe_table">🪑 Bistro Cafe Table</option>
+                                                <option value="umbrella_table">⛱️ Patio Parasol Table</option>
+                                                <option value="chalkboard_sign">📋 Chalkboard Menu Sign</option>
+                                                <option value="flower_planter">🌿 Flower Planter Box</option>
+                                                <option value="park_bench">🪑 Park Wooden Bench</option>
+                                                <option value="street_lamp">🏮 Vintage Street Lamp</option>
+                                                <option value="coffee_sacks">☕ Coffee Bean Sacks</option>
+                                                <option value="neon_open_sign">🪧 Neon Cafe Signpost</option>
+                                                <option value="retro_trash_bin">🗑️ Street Recycling Bin</option>
+                                                <option value="custom_image">🖼️ Custom Uploaded Image</option>
+                                            </select>
+                                            <button type="button" id="btnAddPropBtn" class="pixel-btn btn-primary btn-sm">➕ Add</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Custom Image File for Props -->
+                                    <div class="editor-field-row custom-prop-upload-row">
+                                        <label class="editor-label">Custom Asset File:</label>
+                                        <input type="file" id="inputCustomPropFile" accept="image/*" class="editor-file-input">
+                                    </div>
+
+                                    <!-- Selected Prop Inspector Panel -->
+                                    <div id="propInspectorPanel" class="prop-inspector-panel">
+                                        <div class="prop-inspector-header">
+                                            <span class="editor-label">Selected Asset:</span>
+                                            <span id="selectedPropTitle" class="prop-selected-title">None</span>
+                                        </div>
+                                        <div id="propControlsBody" class="prop-controls-body" style="display: none;">
+                                            <div class="editor-field-row">
+                                                <label class="editor-label">Change Asset Type:</label>
+                                                <select id="selectChangePropType" class="editor-select">
+                                                    <option value="cafe_table">🪑 Bistro Cafe Table</option>
+                                                    <option value="umbrella_table">⛱️ Patio Parasol Table</option>
+                                                    <option value="chalkboard_sign">📋 Chalkboard Menu Sign</option>
+                                                    <option value="flower_planter">🌿 Flower Planter Box</option>
+                                                    <option value="park_bench">🪑 Park Wooden Bench</option>
+                                                    <option value="street_lamp">🏮 Vintage Street Lamp</option>
+                                                    <option value="coffee_sacks">☕ Coffee Bean Sacks</option>
+                                                    <option value="neon_open_sign">🪧 Neon Cafe Signpost</option>
+                                                    <option value="retro_trash_bin">🗑️ Street Recycling Bin</option>
+                                                    <option value="custom_image">🖼️ Custom Image</option>
+                                                </select>
+                                            </div>
+                                            <div class="editor-field-row">
+                                                <label class="editor-label">Position (X, Y):</label>
+                                                <div class="editor-coord-inputs">
+                                                    <input type="number" id="inputPropX" class="editor-num-input" value="0">
+                                                    <input type="number" id="inputPropY" class="editor-num-input" value="0">
+                                                </div>
+                                            </div>
+                                            <div class="editor-field-row">
+                                                <label class="editor-label">Scale: <span id="labelPropScaleVal" class="slider-numeric-badge">1.0x</span></label>
+                                                <input type="range" id="sliderPropScale" class="editor-range-slider" min="0.4" max="2.5" step="0.05" value="1.0">
+                                            </div>
+                                            <div class="editor-btn-row">
+                                                <button type="button" id="btnFlipProp" class="pixel-btn btn-secondary btn-sm" title="Flip Horizontal">⇄ Flip</button>
+                                                <button type="button" id="btnDuplicateProp" class="pixel-btn btn-secondary btn-sm" title="Duplicate selected asset">📋 Duplicate</button>
+                                                <button type="button" id="btnDeleteProp" class="pixel-btn btn-secondary btn-sm btn-danger-soft" title="Delete selected asset">🗑️ Del Asset</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Placed props list -->
+                                    <div class="editor-field-row placed-props-header">
+                                        <span class="editor-label">Placed Assets on Map:</span>
+                                    </div>
+                                    <div class="editor-placed-props-list" id="editorPlacedPropsList">
+                                        <!-- Dynamically listed placed props -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 4: ASSET & SCALE CONTROLS -->
+                            <div class="tycoon-green-card editor-card">
+                                <div class="tycoon-card-title">📐 ASSET & SCALE CONTROLS</div>
+                                <div class="tycoon-card-body">
+                                    <div class="editor-field-row cart-skin-row">
+                                        <label class="editor-label">Cart Theme / Skin:</label>
+                                        <select id="selectCartSkin" class="editor-select">
+                                            <option value="default">16-Bit Handcrafted Cart (Default)</option>
+                                            <option value="vintage_copper">Vintage Copper & Oak Cart</option>
+                                            <option value="neon_cyber">Neon Cyberpunk Cart</option>
+                                            <option value="brass_bar">Polished Brass & Marble Bar</option>
+                                            <option value="custom">Custom Uploaded Cart Image</option>
+                                        </select>
+                                    </div>
+                                    <div class="editor-field-row custom-cart-upload-row">
+                                        <label class="editor-label">Upload Custom Cart:</label>
+                                        <input type="file" id="inputCustomCartFile" accept="image/*" class="editor-file-input">
+                                    </div>
+                                    <div class="editor-slider-block">
+                                        <div class="slider-label-row">
+                                            <span class="editor-label">Cart Width Scale:</span>
+                                            <span id="labelCartWidthVal" class="slider-numeric-badge">76 px</span>
+                                        </div>
+                                        <div class="slider-input-wrap">
+                                            <input type="range" id="sliderCartWidth" class="editor-range-slider" min="50" max="120" value="76" step="1">
+                                        </div>
+                                        <div class="slider-preset-row">
+                                            <button type="button" class="scale-preset-btn" data-scale="cart" data-val="60">Compact (60px)</button>
+                                            <button type="button" class="scale-preset-btn active" data-scale="cart" data-val="76">Default (76px)</button>
+                                            <button type="button" class="scale-preset-btn" data-scale="cart" data-val="95">Hero (95px)</button>
+                                        </div>
+                                    </div>
+                                    <div class="editor-slider-block">
+                                        <div class="slider-label-row">
+                                            <span class="editor-label">NPC Height Scale:</span>
+                                            <span id="labelNpcHeightVal" class="slider-numeric-badge">40 px</span>
+                                        </div>
+                                        <div class="slider-input-wrap">
+                                            <input type="range" id="sliderNpcHeight" class="editor-range-slider" min="25" max="60" value="40" step="1">
+                                        </div>
+                                        <div class="slider-preset-row">
+                                            <button type="button" class="scale-preset-btn" data-scale="npc" data-val="32">Petite (32px)</button>
+                                            <button type="button" class="scale-preset-btn active" data-scale="npc" data-val="40">Default (40px)</button>
+                                            <button type="button" class="scale-preset-btn" data-scale="npc" data-val="52">Tall (52px)</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 4: ACTIONS & PRESETS -->
+                            <div class="tycoon-green-card editor-card editor-actions-card">
+                                <div class="tycoon-card-title">💾 SAVE, EXPORT & SYNC</div>
+                                <div class="tycoon-card-body">
+                                    <button type="button" id="btnSaveMapConfig" class="pixel-btn btn-primary btn-block btn-save-editor">
+                                        💾 SAVE & APPLY TO GAME
+                                    </button>
+                                    <div class="editor-btn-row">
+                                        <button type="button" id="btnExportMapJson" class="pixel-btn btn-secondary">📋 Export JSON</button>
+                                        <button type="button" id="btnImportMapJson" class="pixel-btn btn-secondary">📥 Import JSON</button>
+                                    </div>
+                                    <button type="button" id="btnResetMapDefaults" class="pixel-btn btn-audio btn-reset btn-block btn-reset-editor" title="Reset all stand positions and waypoints to handcrafted defaults">
+                                        ↺ RESET ALL DEFAULTS
+                                    </button>
+                                    <div id="editorSaveToast" class="editor-toast" style="display: none;"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: END OF DAY FINANCIAL AUDIT (Lemonade Tycoon Style) -->
+    <div id="endDayModal" class="modal-overlay">
+        <div class="modal-window audit-modal-window">
+            <div class="modal-title-bar">
+                <span id="modalDayTitle" class="modal-title">Day 1 - Daily Financial Audit</span>
+            </div>
+
+            <div class="modal-location-strip">
+                <span>Location: <strong id="modalLocation">Suburbs</strong></span>
+                <span>Weather: <strong id="modalWeather">28°C Sunny</strong></span>
+            </div>
+
+            <div class="audit-statement-grid">
+                <!-- SECTION 1: REVENUE & PATRONS -->
+                <div class="audit-group-card">
+                    <div class="audit-group-header">📈 REVENUE &amp; PATRONS</div>
+                    <div class="audit-row">
+                        <span>💵 Opening Cash Balance:</span>
+                        <span id="modalOpeningCash" class="audit-val-bold">$40.00</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>👥 Total Pedestrians Passed:</span>
+                        <span id="modalTotalPedestrians" class="audit-val-bold">0</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>☕ Cups of Coffee Sold:</span>
+                        <span id="modalCupsSold" class="audit-val-green">0</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>🚫 Lost Customers:</span>
+                        <span id="modalLostCustomers" class="audit-val-red">0</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>💵 Cash, QRIS &amp; Tap Revenue:</span>
+                        <span id="modalCashRev">$0.00</span>
+                    </div>
+                    <div class="audit-row" style="display: none;">
+                        <span>📱 Digital Bonus:</span>
+                        <span id="modalCryptoRev" class="audit-val-cyan">$0.00</span>
+                    </div>
+                    <div class="audit-row audit-subtotal">
+                        <span>💸 Total Gross Revenue:</span>
+                        <span id="modalGrossRev" class="audit-val-green">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: OPERATING EXPENSES -->
+                <div class="audit-group-card">
+                    <div class="audit-group-header">📉 OPERATING EXPENSES</div>
+                    <div class="audit-row">
+                        <span>📦 Ingredients Used:</span>
+                        <span id="modalCostIngredients" class="audit-val-red">-$0.00</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>🧊 Melt &amp; Milk Spoilage Loss:</span>
+                        <span id="modalCostSpoilage" class="audit-val-red">-$0.00</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>🏢 Location Rent:</span>
+                        <span id="modalCostRent" class="audit-val-red">-$0.00</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>👩‍🍳 Daily Staff Wages:</span>
+                        <span id="modalCostStaff" class="audit-val-red">-$0.00</span>
+                    </div>
+                    <div class="audit-row" id="rowModalLoanDebt" style="display: none;">
+                        <span>⚠️ Loan Interest Paid:</span>
+                        <span id="modalCostLoanInterest" class="audit-val-amber">-$0.00</span>
+                    </div>
+                    <div class="audit-row audit-subtotal">
+                        <span>📉 Total Daily Expenses:</span>
+                        <span id="modalTotalExpenses" class="audit-val-red">-$0.00</span>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: PERFORMANCE & BOTTOM LINE -->
+                <div class="audit-group-card highlight-group">
+                    <div class="audit-group-header">🏆 PERFORMANCE &amp; BOTTOM LINE</div>
+                    <div class="audit-row highlight">
+                        <span>💰 DAILY NET PROFIT / LOSS:</span>
+                        <span id="modalNetProfit" class="profit-positive">+$0.00</span>
+                    </div>
+                    <div class="audit-row closing-cash-row">
+                        <span>💵 Ending Cash Balance:</span>
+                        <span id="modalClosingCash" class="audit-val-closing-cash">$40.00</span>
+                    </div>
+                    <div class="audit-row" style="display: none;">
+                        <span>🪙 Ending Vault:</span>
+                        <span id="modalClosingCrypto" class="audit-val-cyan">$0.00</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>⭐ Customer Satisfaction:</span>
+                        <span id="modalSatisfaction" class="audit-val-gold">4.5 / 5.0 Stars</span>
+                    </div>
+                    <div class="audit-row">
+                        <span>🏆 Brand Reputation:</span>
+                        <span id="modalReputation" class="audit-val-amber">50%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalTomorrowForecast" class="modal-forecast-box">
+                Tomorrow Forecast: ☀️ 32°C - Scorching Heatwave
+            </div>
+
+            <button id="btnNextDay" class="pixel-btn btn-primary btn-next-day">
+                ☕ PROCEED TO NEXT DAY PREP
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: EMERGENCY RELIEF / INSOLVENCY BAILOUT -->
+    <div id="emergencyModal" class="modal-overlay">
+        <div class="modal-window emergency-modal-window">
+            <div class="modal-title-bar emergency-title-bar">
+                <span class="modal-title">🆘 EMERGENCY FINANCIAL RELIEF</span>
+                <button id="btnCloseEmergency" class="pixel-btn btn-close-modal">✕</button>
+            </div>
+            <p class="modal-intro-text">
+                Is your stand running short on cash or facing rent deficits? Master Zay's Barista Safety Net has you covered!
+            </p>
+            <div class="emergency-cards-list">
+                <div class="pixel-card emergency-card" style="display: none;">
+                    <div class="emergency-card-title">💱 1. Instant DEX Swap (USDC ➔ Cash)</div>
+                    <p class="emergency-card-desc">Liquidate your earned USDC into Cash immediately at 1:1.</p>
+                    <button id="btnEmergencySwapUSDC" class="pixel-btn btn-crypto btn-block">
+                        Convert All Vault USDC to Cash
+                    </button>
+                </div>
+
+                <div class="pixel-card emergency-card">
+                    <div class="emergency-card-title warning">🏦 1. Barista Association Emergency Micro-Loan</div>
+                    <p class="emergency-card-desc">Borrow $50.00 operating cash at 5% daily interest until you recover.</p>
+                    <button id="btnEmergencyLoan" class="pixel-btn btn-amber btn-block">
+                        Borrow $50.00 Emergency Loan
+                    </button>
+                </div>
+
+                <div class="pixel-card emergency-card">
+                    <div class="emergency-card-title success">🎁 2. Master Zay's Angel Grant</div>
+                    <p class="emergency-card-desc">Destitute relief: +$25.00 cash grant and emergency starter beans & cups!</p>
+                    <button id="btnEmergencyGrant" class="pixel-btn btn-primary btn-block">
+                        Claim Angel Recovery Aid
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: NFT CERTIFICATE CARD PREVIEW -->
+    <div id="nftModal" class="modal-overlay">
+        <div class="modal-window nft-modal-window">
+            <div class="modal-title-bar">
+                <span class="modal-title">💎 FRANCHISE NFT CERTIFICATE</span>
+                <button id="btnCloseNFT" class="pixel-btn btn-close-modal">✕</button>
+            </div>
+            <div class="nft-canvas-container">
+                <canvas id="nftCanvas" width="380" height="490"></canvas>
+            </div>
+            <div class="modal-btn-row">
+                <button id="btnDownloadNFT" class="pixel-btn btn-crypto btn-block">
+                    💾 Download NFT (.PNG)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: INSUFFICIENT SUPPLIES WARNING (LEMONADE TYCOON RETRO STYLE) -->
+    <div id="suppliesWarningModal" class="modal-overlay">
+        <div class="retro-warning-window">
+            <div class="warning-content-row">
+                <div class="warning-bubble-icon">
+                    <span class="bubble-tail"></span>
+                    <span class="bubble-exclamation">!</span>
+                </div>
+                <div class="warning-text-block">
+                    <div class="warning-title">Not enough supplies to start the day.</div>
+                    <div class="warning-subtitle" id="suppliesWarningSubtitle">Change your recipe or buy more supplies.</div>
+                </div>
+            </div>
+            <div class="warning-btn-row">
+                <button type="button" id="btnSuppliesWarningOK" class="pixel-btn btn-warning-green">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: MAP EDITOR JSON EXPORT / IMPORT -->
+    <div id="editorJsonModal" class="modal-overlay">
+        <div class="modal-window editor-json-window">
+            <div class="modal-title-bar">
+                <span class="modal-title">🗺️ Map Editor Configuration (JSON)</span>
+                <button type="button" id="btnCloseEditorJson" class="modal-close-btn" aria-label="Close">✕</button>
+            </div>
+            <div class="editor-json-body">
+                <p class="editor-json-desc">Copy this JSON to export your custom map setups, or paste modified JSON and click Apply.</p>
+                <textarea id="textareaMapJson" class="editor-json-textarea" spellcheck="false"></textarea>
+                <div class="modal-btn-row">
+                    <button type="button" id="btnCopyMapJson" class="pixel-btn btn-primary">📋 Copy to Clipboard</button>
+                    <button type="button" id="btnApplyMapJson" class="pixel-btn btn-warning-green">📥 Apply Pasted JSON</button>
+                    <button type="button" id="btnCloseMapJsonModal" class="pixel-btn btn-secondary">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/audio.js?v=47"></script>
+    <script src="js/sprites.js?v=47"></script>
+    <script src="js/web3.js?v=47"></script>
+    <script src="js/simulation.js?v=47"></script>
+    <script src="js/engine.js?v=47"></script>
+    <script src="js/editor.js?v=47"></script>
+    <script src="js/game.js?v=47"></script>
+</body>
+</html>
