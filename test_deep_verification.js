@@ -166,9 +166,14 @@ engine.init({
 });
 
 for (let d = 1; d <= 15; d++) {
-    // Calibrate recipe to today's weather temperature
+    // Calibrate recipe to today's weather temperature with attractive pricing ($1.50)
     const idealIce = sim.weather.temp >= 28 ? 4 : (sim.weather.temp >= 22 ? 2 : (sim.weather.temp <= 14 ? 0 : 1));
-    sim.recipe = { beans: 3, milk: 2, sugar: 2, ice: idealIce, syrup: 0, price: 2.50 };
+    sim.recipe = { beans: 3, milk: 2, sugar: 2, ice: idealIce, syrup: 0, price: 1.50 };
+
+    // Financial cushion safety net: take emergency loan if cash drops low
+    if (sim.cash < 15.0 && !sim.activeLoan) {
+        sim.takeEmergencyLoan();
+    }
 
     // Upgrade marketing/cooler/cart once cash cushion allows
     if (sim.upgrades.marketing === 1 && sim.cash >= 130.0) sim.buyUpgrade('marketing', 2);

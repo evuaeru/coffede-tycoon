@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Coffede Tycoon ☕ | 16-Bit Pixel Art Coffee Simulation</title>
     <!-- Google Fonts Preconnect & High-Performance Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=44">
+    <link rel="stylesheet" href="style.css?v=48">
 </head>
 <body>
     <div class="app-container">
@@ -141,7 +141,7 @@
                             <canvas id="gameCanvas" width="1280" height="720"></canvas>
                         </div>
                         <!-- BELOW CANVAS: STAND DAYTIME CONTROLS & CLOCK BAR (Does NOT cover gameplay screen) -->
-                        <div class="canvas-bottom-hud stand-controls-panel stand-controls-below-canvas">
+                        <div id="canvasControlsBar" class="canvas-bottom-hud stand-controls-panel stand-controls-below-canvas">
                             <button type="button" id="btnStartDay" class="pixel-btn btn-primary btn-open-stand">▶ OPEN STAND (START DAY)</button>
                             <div id="simLiveControls" class="sim-live-controls" style="display: none;">
                                 <button type="button" id="btnPauseSim" class="pixel-btn">⏸ Pause</button>
@@ -1488,6 +1488,46 @@
             </section>
 
         </main>
+
+        <!-- DOCKED MOBILE BOTTOM NAVIGATION BAR (Sticky on mobile screens, hidden on desktop) -->
+        <nav id="mobileBottomNav" class="mobile-bottom-nav-bar" aria-label="Mobile Navigation">
+            <button type="button" class="nav-tab mobile-nav-btn active" data-tab="stand" aria-label="Stand">
+                <span class="mobile-nav-icon">🏠</span>
+                <span class="mobile-nav-label">Stand</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn" data-tab="recipe" aria-label="Recipe">
+                <span class="mobile-nav-icon">☕</span>
+                <span class="mobile-nav-label">Recipe</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn" data-tab="supplies" aria-label="Supplies">
+                <span class="mobile-nav-icon">📦</span>
+                <span class="mobile-nav-label">Supplies</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn" data-tab="upgrades" aria-label="Upgrades">
+                <span class="mobile-nav-icon">🛠️</span>
+                <span class="mobile-nav-label">Upgrades</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn" data-tab="staff" aria-label="Staff">
+                <span class="mobile-nav-icon">👩‍🍳</span>
+                <span class="mobile-nav-label">Staff</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn" data-tab="locations" aria-label="Locations">
+                <span class="mobile-nav-icon">📍</span>
+                <span class="mobile-nav-label">Locations</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn" data-tab="marketing" aria-label="Marketing">
+                <span class="mobile-nav-icon">📢</span>
+                <span class="mobile-nav-label">Marketing</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn" data-tab="ledger" aria-label="Results">
+                <span class="mobile-nav-icon">📊</span>
+                <span class="mobile-nav-label">Results</span>
+            </button>
+            <button type="button" class="nav-tab mobile-nav-btn map-editor-tab" data-tab="editor" aria-label="Map Editor">
+                <span class="mobile-nav-icon">🗺️</span>
+                <span class="mobile-nav-label">Map Editor</span>
+            </button>
+        </nav>
     </div>
 
     <!-- MODAL 1: END OF DAY FINANCIAL AUDIT (Lemonade Tycoon Style) -->
